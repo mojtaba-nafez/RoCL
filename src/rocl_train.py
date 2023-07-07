@@ -80,25 +80,22 @@ if 'Rep' in args.advtrain_type:
     Rep = RepresentationAdv(model, projector, epsilon=args.epsilon, alpha=args.alpha, min_val=args.min, max_val=args.max, max_iters=args.k, _type=args.attack_type, loss_type=args.loss_type, regularize = args.regularize_to)
 else:
     assert('wrong adversarial train type')
-
 # Model upload to GPU # 
 model.cuda()
 projector.cuda()
-
-model       = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
-model       = torch.nn.parallel.DistributedDataParallel(
-                model,
-                device_ids=[args.local_rank],
-                output_device=args.local_rank,
-                find_unused_parameters=True,
-)
-projector   = torch.nn.parallel.DistributedDataParallel(
-                projector,
-                device_ids=[args.local_rank],
-                output_device=args.local_rank,
-                find_unused_parameters=True,
-)
-
+# model       = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
+# model       = torch.nn.parallel.DistributedDataParallel(
+#                 model,
+#                 device_ids=[args.local_rank],
+#                 output_device=args.local_rank,
+#                 find_unused_parameters=True,
+# )
+# projector   = torch.nn.parallel.DistributedDataParallel(
+#                 projector,
+#                 device_ids=[args.local_rank],
+#                 output_device=args.local_rank,
+#                 find_unused_parameters=True,
+# )
 cudnn.benchmark = True
 print_status('Using CUDA..')
 
