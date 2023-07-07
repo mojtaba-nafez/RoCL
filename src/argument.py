@@ -144,7 +144,7 @@ def parser():
     parser.add_argument('--random_start', type=bool, default=True,
         help='True for PGD')
     
-    args = parser.parse_args()
+    args = parser.parse_args([])
 
     return args
 
