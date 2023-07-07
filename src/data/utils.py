@@ -8,7 +8,7 @@ import zipfile
 
 import torch
 from torch.utils.model_zoo import tqdm
-from torch._six import PY3
+# from torch._six import PY3
 
 
 def gen_bar_updater():
