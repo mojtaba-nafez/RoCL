@@ -44,12 +44,12 @@ if args.seed != 0:
     torch.manual_seed(args.seed)
 
 world_size = args.ngpu
-torch.distributed.init_process_group(
-    'nccl',
-    init_method='env://',
-    world_size=world_size,
-    rank=args.local_rank,
-)
+# torch.distributed.init_process_group(
+#     'nccl',
+#     init_method='env://',
+#     world_size=world_size,
+#     rank=args.local_rank,
+# )
 
 # Data
 print_status('==> Preparing data..')
@@ -125,8 +125,9 @@ def train(epoch):
     total_loss = 0
     reg_simloss = 0
     reg_loss = 0
-
+    print("number of batch:", len(trainloader))
     for batch_idx, (ori, inputs_1, inputs_2, label) in enumerate(trainloader):
+        print("batch number=", batch_idx)
         ori, inputs_1, inputs_2 = ori.cuda(), inputs_1.cuda() ,inputs_2.cuda()
 
         if args.attack_to=='original':
@@ -144,6 +145,7 @@ def train(epoch):
             inputs = torch.cat((inputs_1, inputs_2))
         
         outputs = projector(model(inputs))
+        multi_gpu = False
         similarity, gathered_outputs = pairwise_similarity(outputs, temperature=args.temperature, multi_gpu=multi_gpu, adv_type = args.advtrain_type) 
         
         simloss  = NT_xent(similarity, args.advtrain_type)
