@@ -29,12 +29,10 @@ def pairwise_similarity(outputs,temperature=0.5,multi_gpu=False, adv_type='None'
         if adv_type == 'Rep':
             N=3
         B = int(outputs.shape[0]/N)
-
         outputs_1   = outputs[0:B]
         outputs_2   = outputs[B:2*B]
         outputs_3   = outputs[2*B:3*B]
-
-        gather_t_1 = [torch.empty_like(outputs_1) for i in range(dist.get_world_size())]
+        gather_t_1 = [torch.empty_like(outputs_1) for i in range(dist.get_world_size())]        
         gather_t_1 = distops.all_gather(gather_t_1, outputs_1)
 
         gather_t_2 = [torch.empty_like(outputs_2) for i in range(dist.get_world_size())]
@@ -42,16 +40,18 @@ def pairwise_similarity(outputs,temperature=0.5,multi_gpu=False, adv_type='None'
 
         gather_t_3 = [torch.empty_like(outputs_3) for i in range(dist.get_world_size())]
         gather_t_3 = distops.all_gather(gather_t_3, outputs_3)
-
+        
         outputs_1 = torch.cat(gather_t_1)
         outputs_2 = torch.cat(gather_t_2)
         outputs_3 = torch.cat(gather_t_3)
-
+        
         if N==3:
             outputs = torch.cat((outputs_1,outputs_2,outputs_3))
 
     B   = outputs.shape[0]
+    
     outputs_norm = outputs/(outputs.norm(dim=1).view(B,1) + 1e-8)
+    
     similarity_matrix = (1./temperature) * torch.mm(outputs_norm,outputs_norm.transpose(0,1).detach())
 
     return similarity_matrix, outputs
